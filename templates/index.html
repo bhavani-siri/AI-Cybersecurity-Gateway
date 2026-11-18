@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Cybersecurity Gateway</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ── Animated grid background ── -->
+  <div class="bg-grid"></div>
+  <div class="scanline"></div>
+
+  <div class="shell">
+
+    <!-- ════════════════════════════════════
+         HEADER
+    ════════════════════════════════════ -->
+    <header class="header">
+      <div class="header-left">
+        <div class="shield-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
+            <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="site-title">AI Cybersecurity Gateway</h1>
+          <p class="site-sub">LLM Firewall &amp; Prompt Injection Detector</p>
+        </div>
+      </div>
+      <div class="status-beacon">
+        <span class="beacon-dot"></span>
+        <span class="beacon-label">SYSTEM ONLINE</span>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════
+         DASHBOARD STATS
+    ════════════════════════════════════ -->
+    <section class="dashboard" id="dashboard">
+      <div class="stat-card" id="stat-total">
+        <div class="stat-value" id="val-total">—</div>
+        <div class="stat-label">TOTAL REQUESTS</div>
+      </div>
+      <div class="stat-card safe" id="stat-safe">
+        <div class="stat-value" id="val-safe">—</div>
+        <div class="stat-label">SAFE</div>
+      </div>
+      <div class="stat-card suspicious" id="stat-suspicious">
+        <div class="stat-value" id="val-suspicious">—</div>
+        <div class="stat-label">SUSPICIOUS</div>
+      </div>
+      <div class="stat-card blocked" id="stat-blocked">
+        <div class="stat-value" id="val-blocked">—</div>
+        <div class="stat-label">BLOCKED</div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         INPUT PANEL
+    ════════════════════════════════════ -->
+    <section class="input-panel">
+      <label class="input-label">ENTER PROMPT</label>
+      <div class="textarea-wrap">
+        <textarea
+          id="promptInput"
+          placeholder="Type your message here…  (Shift+Enter for newline, Enter to send)"
+          rows="4"
+          maxlength="2000"
+        ></textarea>
+        <div class="char-counter"><span id="charCount">0</span> / 2000</div>
+      </div>
+      <div class="input-actions">
+        <div class="test-prompts">
+          <span class="test-label">Quick tests:</span>
+          <button class="pill safe-pill"  onclick="fillPrompt('safe')">✓ Safe</button>
+          <button class="pill sus-pill"   onclick="fillPrompt('suspicious')">⚠ Suspicious</button>
+          <button class="pill bad-pill"   onclick="fillPrompt('malicious')">✕ Malicious</button>
+        </div>
+        <button class="send-btn" id="sendBtn" onclick="analyzePrompt()">
+          <span class="btn-text">ANALYZE</span>
+          <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════
+         RESULT PANEL (hidden until first analysis)
+    ════════════════════════════════════ -->
+    <section class="result-panel" id="resultPanel" style="display:none;">
+
+      <!-- Top bar: status + score -->
+      <div class="result-header" id="resultHeader">
+        <div class="result-status-wrap">
+          <span class="result-status-icon" id="resultIcon">✓</span>
+          <span class="result-status-text" id="resultStatus">SAFE</span>
+        </div>
+        <div class="risk-meter-wrap">
+          <span class="risk-label">RISK SCORE</span>
+          <div class="risk-bar-track">
+            <div class="risk-bar-fill" id="riskBarFill"></div>
+          </div>
+          <span class="risk-pct" id="riskPct">0%</span>
+        </div>
+      </div>
+
+      <!-- Layer breakdown -->
+      <div class="layer-breakdown" id="layerBreakdown">
+        <div class="layer-row" id="layer1Row">
+          <span class="layer-name">Layer 1 — Keywords</span>
+          <span class="layer-detail" id="layer1Detail"></span>
+          <span class="layer-score" id="layer1Score"></span>
+        </div>
+        <div class="layer-row" id="layer2Row">
+          <span class="layer-name">Layer 2 — Patterns</span>
+          <span class="layer-detail" id="layer2Detail"></span>
+          <span class="layer-score" id="layer2Score"></span>
+        </div>
+        <div class="layer-row" id="layer3Row">
+          <span class="layer-name">Layer 3 — AI Semantic</span>
+          <span class="layer-detail" id="layer3Detail"></span>
+          <span class="layer-score" id="layer3Score"></span>
+        </div>
+      </div>
+
+      <!-- AI Response -->
+      <div class="response-box">
+        <div class="response-label">AI RESPONSE</div>
+        <div class="response-text" id="responseText"></div>
+      </div>
+
+    </section>
+
+    <!-- ════════════════════════════════════
+         LOADING OVERLAY
+    ════════════════════════════════════ -->
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+      <div class="loading-inner">
+        <div class="spinner"></div>
+        <div class="loading-steps" id="loadingSteps">
+          <div class="loading-step active" id="step1">► Layer 1: Scanning keywords…</div>
+          <div class="loading-step"         id="step2">► Layer 2: Pattern analysis…</div>
+          <div class="loading-step"         id="step3">► Layer 3: AI moderation…</div>
+          <div class="loading-step"         id="step4">► Computing risk score…</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      AI Cybersecurity Gateway &nbsp;·&nbsp; Powered by Google Gemini &nbsp;·&nbsp;
+      <span id="footerTime"></span>
+    </footer>
+
+  </div><!-- /shell -->
+
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
